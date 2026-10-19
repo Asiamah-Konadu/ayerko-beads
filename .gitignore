@@ -1,0 +1,9 @@
+# SQLite Database
+database.sqlite
+database.sqlite-journal
+
+# System & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
