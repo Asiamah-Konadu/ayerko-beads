@@ -438,3 +438,120 @@ body {
     box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     text-align: center;
 }
+
+@media (max-width: 900px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--adm-border);
+    }
+
+    .sidebar-header {
+        padding: 14px 18px;
+    }
+
+    .sidebar-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px 12px;
+        flex-grow: 0;
+    }
+
+    .menu-item {
+        flex: 0 0 auto;
+    }
+
+    .menu-item a {
+        white-space: nowrap;
+    }
+
+    .sidebar-footer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px 18px;
+        padding: 10px 18px;
+    }
+
+    .admin-main {
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .admin-topbar {
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 24px;
+    }
+
+    .admin-body {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-topbar {
+        flex-direction: column;
+        padding: 18px 16px;
+    }
+
+    .admin-topbar > div {
+        max-width: 100%;
+    }
+
+    .topbar-title {
+        font-size: 1.1rem;
+        overflow-wrap: anywhere;
+    }
+
+    .admin-topbar > div:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px !important;
+    }
+
+    .admin-body {
+        padding: 16px;
+    }
+
+    .stats-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-box {
+        padding: 18px;
+    }
+
+    .admin-card {
+        padding: 16px;
+        margin-bottom: 18px;
+    }
+
+    .card-header-row {
+        align-items: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .table-responsive {
+        margin: 0 -8px;
+        padding: 0 8px 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        min-width: 680px;
+    }
+
+    .login-card {
+        padding: 28px 20px;
+    }
+}

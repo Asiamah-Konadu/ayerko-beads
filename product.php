@@ -61,7 +61,7 @@ $jsProduct = [
         <span style="color: var(--text-primary);"><?= htmlspecialchars($product['name']) ?></span>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 50px; align-items: start; margin-bottom: 70px;">
+    <div class="product-detail-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 50px; align-items: start; margin-bottom: 70px;">
         <!-- Product Image Showcase -->
         <div style="border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--gold-border); box-shadow: var(--shadow-gold); background: var(--bg-card);">
             <img src="<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" style="width: 100%; height: 500px; object-fit: cover;">

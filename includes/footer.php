@@ -103,7 +103,7 @@
                 <input type="text" id="cName" name="customer_name" class="form-control" required placeholder="e.g. Akosua Mensah">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="checkout-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="form-group">
                     <label class="form-label" for="cPhone">WhatsApp / Mobile Number *</label>
                     <input type="tel" id="cPhone" name="customer_phone" class="form-control" required placeholder="e.g. 0243825825">
@@ -119,7 +119,7 @@
                 <input type="text" id="cAddress" name="shipping_address" class="form-control" required placeholder="e.g. Madina Social Welfare, Accra / East Legon / Kumasi">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="checkout-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="form-group">
                     <label class="form-label" for="cCity">City / Town *</label>
                     <input type="text" id="cCity" name="city" class="form-control" required placeholder="Accra, Kumasi, Takoradi, London...">
