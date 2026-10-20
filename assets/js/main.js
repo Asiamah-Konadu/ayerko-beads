@@ -472,12 +472,42 @@ document.addEventListener('DOMContentLoaded', () => {
     Cart.init();
     initCatalogFilters();
 
+    const menuToggle = document.querySelector('.nav-menu-toggle');
+    const navigation = document.getElementById('primaryNavigation');
+    if (menuToggle && navigation) {
+        const closeNavigation = () => {
+            menuToggle.setAttribute('aria-expanded', 'false');
+            menuToggle.setAttribute('aria-label', 'Open navigation menu');
+            navigation.classList.remove('is-open');
+        };
+
+        menuToggle.addEventListener('click', () => {
+            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', String(!isExpanded));
+            menuToggle.setAttribute('aria-label', isExpanded ? 'Open navigation menu' : 'Close navigation menu');
+            navigation.classList.toggle('is-open', !isExpanded);
+        });
+
+        navigation.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeNavigation);
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) closeNavigation();
+        });
+    }
+
     // Close overlays with ESC key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             Cart.closeDrawer();
             closeQuickView();
             closeCheckout();
+            if (menuToggle && navigation) {
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.setAttribute('aria-label', 'Open navigation menu');
+                navigation.classList.remove('is-open');
+            }
         }
     });
 });

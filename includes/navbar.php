@@ -4,7 +4,7 @@
 <nav class="navbar" id="mainNavbar">
     <div class="container nav-inner">
         <a href="index.php" class="brand-logo">
-            <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-primary); box-shadow: var(--shadow-gold); flex-shrink: 0; background: #000;">
+            <div class="brand-mark">
                 <img src="assets/images/ayerko_beads_logo.jpg" alt="Ayerko Beads Logo" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <div class="brand-title-wrap">
@@ -12,15 +12,6 @@
                 <span class="brand-sub">MADINA, ACCRA • GHANA</span>
             </div>
         </a>
-
-        <ul class="nav-links">
-            <li><a href="index.php" class="nav-link">Creations</a></li>
-            <li><a href="index.php#collections" class="nav-link">Krobo Glass</a></li>
-            <li><a href="index.php#collections" class="nav-link">Waist Beads</a></li>
-            <li><a href="index.php#collections" class="nav-link">Bridal Coral</a></li>
-            <li><a href="track.php" class="nav-link" style="color: var(--gold-light);">📦 Track Order</a></li>
-            <li><a href="index.php#atelier" class="nav-link">Madina Atelier</a></li>
-        </ul>
 
         <div class="nav-right-actions">
             <!-- Order Tracking Button -->
@@ -40,5 +31,20 @@
                 <span>💬 0243825825</span>
             </a>
         </div>
+
+        <button class="nav-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primaryNavigation">
+            <span class="menu-beads" aria-hidden="true"></span>
+            <span class="menu-beads" aria-hidden="true"></span>
+            <span class="menu-beads" aria-hidden="true"></span>
+        </button>
+
+        <ul class="nav-links" id="primaryNavigation">
+            <li><a href="index.php" class="nav-link">Creations</a></li>
+            <li><a href="index.php#collections" class="nav-link">Krobo Glass</a></li>
+            <li><a href="index.php#collections" class="nav-link">Waist Beads</a></li>
+            <li><a href="index.php#collections" class="nav-link">Bridal Coral</a></li>
+            <li><a href="track.php" class="nav-link" style="color: var(--gold-light);">📦 Track Order</a></li>
+            <li><a href="index.php#atelier" class="nav-link">Madina Atelier</a></li>
+        </ul>
     </div>
 </nav>

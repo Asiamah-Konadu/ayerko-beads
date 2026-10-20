@@ -199,6 +199,27 @@ img {
     gap: 14px;
 }
 
+.nav-inner > .brand-logo {
+    order: 1;
+}
+
+.brand-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--gold-primary);
+    box-shadow: var(--shadow-gold);
+    flex-shrink: 0;
+    background: #000;
+}
+
+.brand-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .brand-emblem {
     width: 44px;
     height: 44px;
@@ -240,6 +261,7 @@ img {
     align-items: center;
     gap: 32px;
     list-style: none;
+    order: 2;
 }
 
 .nav-link {
@@ -274,6 +296,11 @@ img {
     display: flex;
     align-items: center;
     gap: 16px;
+    order: 3;
+}
+
+.nav-menu-toggle {
+    display: none;
 }
 
 /* Nav Cart Button */
@@ -1334,6 +1361,7 @@ textarea.form-control {
     .nav-inner {
         flex-wrap: wrap;
         padding: 12px 0 0;
+        gap: 0 8px;
     }
     .brand-logo {
         gap: 10px;
@@ -1347,6 +1375,7 @@ textarea.form-control {
     }
     .nav-right-actions {
         gap: 8px;
+        margin-left: auto;
     }
     .nav-right-actions > .btn-outline,
     .nav-right-actions > .btn-whatsapp {
@@ -1356,20 +1385,52 @@ textarea.form-control {
         padding: 8px 12px;
         gap: 6px;
     }
-    .nav-links {
+    .nav-menu-toggle {
         order: 3;
-        width: 100%;
-        gap: 22px;
-        overflow-x: auto;
-        padding: 10px 0 12px;
-        scrollbar-width: none;
-        white-space: nowrap;
+        width: 42px;
+        height: 42px;
+        padding: 9px 8px;
+        border: 1px solid var(--gold-border);
+        border-radius: 50%;
+        background: rgba(34, 28, 23, 0.85);
+        box-shadow: 0 0 12px rgba(212, 175, 55, 0.12);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: var(--transition);
     }
-    .nav-links::-webkit-scrollbar {
+    .nav-menu-toggle:hover,
+    .nav-menu-toggle[aria-expanded="true"] {
+        border-color: var(--gold-primary);
+        box-shadow: var(--shadow-gold);
+    }
+    .menu-beads {
+        display: block;
+        width: 22px;
+        height: 5px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 2.5px 2.5px, var(--gold-light) 2px, transparent 2.4px) 0 0 / 7px 5px repeat-x;
+    }
+    .nav-links {
+        order: 4;
+        width: 100%;
         display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px 0 12px;
+        border-top: 1px solid var(--gold-border);
+    }
+    .nav-links.is-open {
+        display: flex;
     }
     .nav-link {
+        display: block;
         font-size: 0.84rem;
+        padding: 10px 4px;
     }
     .hero-title {
         font-size: 2.1rem;
@@ -1387,6 +1448,31 @@ textarea.form-control {
 }
 
 @media (max-width: 480px) {
+    .brand-logo {
+        gap: 6px;
+    }
+    .brand-mark {
+        width: 38px;
+        height: 38px;
+    }
+    .brand-name {
+        font-size: 0.9rem;
+    }
+    .brand-sub {
+        font-size: 0.52rem;
+        letter-spacing: 0.07em;
+    }
+    .nav-inner {
+        gap: 0 5px;
+    }
+    .nav-menu-toggle {
+        width: 38px;
+        height: 38px;
+    }
+    .nav-cart-btn {
+        padding: 8px 9px;
+        font-size: 0.82rem;
+    }
     .hero-title {
         font-size: 1.8rem;
     }
