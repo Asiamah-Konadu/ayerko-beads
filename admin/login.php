@@ -1,5 +1,5 @@
 <?php
-// admin/login.php
+// admin/login.php - Ayerko Beads Artisan Login
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify password against DB hash or fallback 'admin123'
     if (password_verify($password, $hash) || $password === 'admin123') {
         $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_user'] = 'Master Artisan';
+        $_SESSION['admin_user'] = 'Master Artisan Ayerko';
         header('Location: index.php');
         exit;
     } else {
@@ -36,19 +36,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artisan Login • ILÉ ILÈKÈ Portal</title>
+    <title>Artisan Login • Ayerko Beads Portal</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="login-screen-wrap">
 
 <div class="login-card">
-    <div style="font-size: 2.8rem; margin-bottom: 12px;">👑</div>
+    <div style="width: 58px; height: 58px; border-radius: 50%; overflow: hidden; border: 2px solid var(--adm-gold); margin: 0 auto 12px; background: #000;">
+        <img src="../assets/images/ayerko_beads_logo.jpg" alt="Ayerko Beads Logo" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
     <h1 style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--adm-gold-light); margin-bottom: 6px;">
-        ILÉ ILÈKÈ
+        AYERKO BEADS
     </h1>
     <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--adm-muted); margin-bottom: 26px;">
-        Artisan & Inventory Console
+        Madina, Accra • Atelier Console
     </div>
 
     <?php if (!empty($error)): ?>
