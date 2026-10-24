@@ -39,7 +39,7 @@ function getPostgresDsn($databaseUrl) {
 }
 
 $postgresUrl = getenv('DATABASE_POSTGRES_URL')
-    ?: getenv('DATABASE_PRISMA_DATABADE_URL')
+    ?: getenv('DATABASE_PRISMA_DATABASE_URL')
     ?: getenv('DATABASE_URL');
 
 try {
