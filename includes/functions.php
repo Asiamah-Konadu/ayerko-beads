@@ -163,30 +163,55 @@ function getWhatsAppOrderMessageUrl($orderNumber, $customerName, $phone, $items,
  */
 function handleImageUpload($fileInputName, $targetDir = __DIR__ . '/../assets/uploads/') {
     if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
-        return ['success' => false, 'error' => 'No file uploaded or upload error occurred.'];
+        $uploadError = $_FILES[$fileInputName]['error'] ?? UPLOAD_ERR_NO_FILE;
+        $message = $uploadError === UPLOAD_ERR_INI_SIZE || $uploadError === UPLOAD_ERR_FORM_SIZE
+            ? 'The uploaded image is too large.'
+            : 'No file uploaded or upload error occurred.';
+        return ['success' => false, 'error' => $message];
     }
 
     $file = $_FILES[$fileInputName];
+    if ($file['size'] > 4 * 1024 * 1024) {
+        return ['success' => false, 'error' => 'Image file size cannot exceed 4MB.'];
+    }
+
     $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
 
-    if (!in_array($mimeType, $allowedTypes)) {
+    if (!in_array($mimeType, $allowedTypes, true)) {
         return ['success' => false, 'error' => 'Invalid image format. Only JPG, PNG, and WebP are accepted.'];
     }
 
-    if ($file['size'] > 10 * 1024 * 1024) {
-        return ['success' => false, 'error' => 'Image file size cannot exceed 10MB.'];
+    $extensionByType = [
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+    $extension = $extensionByType[$mimeType];
+    $newFileName = 'bead_' . bin2hex(random_bytes(12)) . '.' . $extension;
+
+    $blobToken = getenv('BLOB_READ_WRITE_TOKEN');
+    if ($blobToken === false && isset($_ENV['BLOB_READ_WRITE_TOKEN'])) {
+        $blobToken = $_ENV['BLOB_READ_WRITE_TOKEN'];
+    }
+    if ($blobToken !== false && trim($blobToken) !== '') {
+        return uploadImageToVercelBlob($file, $newFileName, $mimeType, trim($blobToken));
+    }
+
+    if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
+        return ['success' => false, 'error' => 'Vercel Blob is not configured. Add BLOB_READ_WRITE_TOKEN to this Vercel project.'];
     }
 
     if (!is_dir($targetDir)) {
-        mkdir($targetDir, 0755, true);
+        if (!mkdir($targetDir, 0755, true) && !is_dir($targetDir)) {
+            return ['success' => false, 'error' => 'Failed to create the local image upload directory.'];
+        }
     }
 
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $newFileName = 'bead_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . strtolower($ext);
     $destination = $targetDir . $newFileName;
 
     if (move_uploaded_file($file['tmp_name'], $destination)) {
@@ -194,6 +219,80 @@ function handleImageUpload($fileInputName, $targetDir = __DIR__ . '/../assets/up
     }
 
     return ['success' => false, 'error' => 'Failed to save the uploaded image. Check folder permissions.'];
+}
+
+/**
+ * Upload an image to a public Vercel Blob store and return its permanent URL.
+ */
+function uploadImageToVercelBlob($file, $fileName, $mimeType, $token) {
+    if (!function_exists('curl_init')) {
+        return ['success' => false, 'error' => 'The PHP cURL extension is required to upload images to Vercel Blob.'];
+    }
+
+    $tokenParts = explode('_', $token);
+    $storeId = $tokenParts[3] ?? '';
+    if ($storeId === '') {
+        return ['success' => false, 'error' => 'The Vercel Blob read-write token is invalid.'];
+    }
+
+    $pathname = 'product-images/' . $fileName;
+    $url = 'https://vercel.com/api/blob/?pathname=' . rawurlencode($pathname);
+    $headers = [
+        'Authorization: Bearer ' . $token,
+        'x-api-version: 13',
+        'x-vercel-blob-store-id: ' . $storeId,
+        'x-vercel-blob-access: public',
+        'x-content-type: ' . $mimeType,
+        'x-add-random-suffix: 0',
+    ];
+
+    $handle = curl_init($url);
+    if ($handle === false) {
+        return ['success' => false, 'error' => 'Could not initialize the Vercel Blob upload request.'];
+    }
+
+    $imageContents = file_get_contents($file['tmp_name']);
+    if ($imageContents === false) {
+        curl_close($handle);
+        return ['success' => false, 'error' => 'Failed to read the uploaded image.'];
+    }
+
+    curl_setopt_array($handle, [
+        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_POSTFIELDS => $imageContents,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+
+    $responseBody = curl_exec($handle);
+    $statusCode = curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+    $curlError = curl_error($handle);
+    curl_close($handle);
+
+    if ($responseBody === false) {
+        return ['success' => false, 'error' => 'Could not connect to Vercel Blob: ' . $curlError];
+    }
+
+    $response = json_decode($responseBody, true);
+    if ($statusCode < 200 || $statusCode >= 300 || empty($response['url'])) {
+        $errorMessage = $response['error']['message'] ?? 'Vercel Blob rejected the image upload.';
+        return ['success' => false, 'error' => $errorMessage];
+    }
+
+    return ['success' => true, 'path' => $response['url']];
+}
+
+/**
+ * Resolve stored image paths for storefront and admin pages.
+ */
+function getImageUrl($imagePath, $relativePrefix = '') {
+    if (preg_match('~^https?://~i', $imagePath)) {
+        return $imagePath;
+    }
+
+    return $relativePrefix . ltrim($imagePath, '/');
 }
 
 /**

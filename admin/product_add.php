@@ -21,15 +21,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Image Upload
         $imagePath = 'assets/images/edo_royal_coral.jpg'; // fallback
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadResult = handleImageUpload('image', __DIR__ . '/../assets/uploads/');
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
+            $error = "Please choose a photo of the bead creation to upload.";
+        } else {
+            $uploadResult = handleImageUpload('image');
             if ($uploadResult['success']) {
                 $imagePath = $uploadResult['path'];
             } else {
                 $error = $uploadResult['error'];
             }
-        } else {
-            $error = "Please choose a photo of the bead creation to upload.";
         }
 
         if (empty($error)) {
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
                                 <div style="font-size: 2.2rem; margin-bottom: 8px;">📷</div>
                                 <div style="font-weight: 600; color: var(--adm-gold-light);">Click to select high-resolution bead photo</div>
-                                <div style="font-size: 0.8rem; color: var(--adm-muted); margin-top: 4px;">Supports JPG, PNG, WebP (Up to 10MB)</div>
+                                <div style="font-size: 0.8rem; color: var(--adm-muted); margin-top: 4px;">Supports JPG, PNG, WebP (Up to 4MB)</div>
                                 <img id="previewImg" class="img-preview-tag" alt="Preview">
                             </div>
                             <input type="file" id="imgInput" name="image" accept="image/*" style="display: none;" onchange="previewFile(event)">

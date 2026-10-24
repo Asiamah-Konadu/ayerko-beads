@@ -62,7 +62,9 @@ try {
         ':notes' => $notes
     ]);
 
-    $orderId = $pdo->lastInsertId();
+    $orderId = $databaseDriver === 'pgsql'
+        ? $pdo->lastInsertId('orders_id_seq')
+        : $pdo->lastInsertId();
 
     // Insert Order Items & decrement stock
     $itemStmt = $pdo->prepare("
@@ -71,7 +73,9 @@ try {
     ");
 
     $stockUpdateStmt = $pdo->prepare("
-        UPDATE products SET stock = MAX(0, stock - :qty) WHERE id = :pid
+        UPDATE products
+        SET stock = CASE WHEN stock > :qty THEN stock - :qty ELSE 0 END
+        WHERE id = :pid
     ");
 
     $formattedItemsForWa = [];

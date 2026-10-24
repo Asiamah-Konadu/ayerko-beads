@@ -138,7 +138,7 @@ $categories = [
                     'name' => $p['name'],
                     'priceUSD' => (float)$p['price'],
                     'category' => $p['category'],
-                    'image' => $p['image'],
+                    'image' => getImageUrl($p['image']),
                     'description' => $p['description'],
                     'materials' => $p['materials'],
                     'stock' => (int)$p['stock']
@@ -146,7 +146,7 @@ $categories = [
             ?>
             <article class="product-card" data-category="<?= htmlspecialchars($p['category']) ?>" data-title="<?= htmlspecialchars($p['name']) ?>" data-materials="<?= htmlspecialchars($p['materials']) ?>">
                 <div class="card-media" onclick='openQuickView(<?= json_encode($jsProduct) ?>)' style="cursor: pointer;">
-                    <img src="<?= htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" loading="lazy">
+                    <img src="<?= htmlspecialchars(getImageUrl($p['image'])) ?>" alt="<?= htmlspecialchars($p['name']) ?>" loading="lazy">
                     <span class="card-tag"><?= htmlspecialchars($p['category']) ?></span>
                     <?php if ($p['stock'] <= 5): ?>
                         <span class="card-stock-tag">Only <?= $p['stock'] ?> Left</span>

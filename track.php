@@ -196,7 +196,7 @@ $currentStep = $order ? ($statusOrder[$order['order_status']] ?? 2) : 1;
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(34, 28, 23, 0.4); border: 1px solid rgba(212, 175, 55, 0.1); border-radius: var(--radius-sm); padding: 12px 16px;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <?php if (!empty($item['image'])): ?>
-                                <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--gold-border);">
+                                <img src="<?= htmlspecialchars(getImageUrl($item['image'])) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--gold-border);">
                             <?php endif; ?>
                             <div>
                                 <div style="font-weight: 600; font-size: 0.92rem;"><?= htmlspecialchars($item['product_name']) ?></div>

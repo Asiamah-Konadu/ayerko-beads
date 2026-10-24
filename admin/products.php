@@ -90,7 +90,7 @@ $products = $stmt->fetchAll();
                                 <?php foreach ($products as $p): ?>
                                 <tr>
                                     <td>
-                                        <img src="../<?= htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" class="prod-thumb">
+                                        <img src="<?= htmlspecialchars(getImageUrl($p['image'], '../')) ?>" alt="<?= htmlspecialchars($p['name']) ?>" class="prod-thumb">
                                     </td>
                                     <td>
                                         <strong style="color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($p['name']) ?></strong>

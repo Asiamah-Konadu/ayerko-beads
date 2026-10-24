@@ -36,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $imagePath = $product['image']; // retain old image by default
         
-        // If a new image was uploaded
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadResult = handleImageUpload('image', __DIR__ . '/../assets/uploads/');
+        // Replace the current image only when a new file is provided.
+        if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $uploadResult = handleImageUpload('image');
             if ($uploadResult['success']) {
                 $imagePath = $uploadResult['path'];
             } else {
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="adm-form-group form-full">
                             <label class="adm-label">Bead Photography</label>
                             <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 12px;">
-                                <img src="../<?= htmlspecialchars($product['image']) ?>" alt="Current Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid var(--adm-gold);">
+                                <img src="<?= htmlspecialchars(getImageUrl($product['image'], '../')) ?>" alt="Current Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid var(--adm-gold);">
                                 <div>
                                     <div style="font-size: 0.85rem; color: var(--adm-gold-light); font-weight: 600;">Current Active Photo</div>
                                     <div style="font-size: 0.78rem; color: var(--adm-muted);">To replace it, choose a new photo below.</div>

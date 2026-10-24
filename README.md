@@ -53,6 +53,19 @@ A luxury e-commerce platform and administrative atelier console for **Ayerko Bea
   - Set exchange rates for GHS, NGN, GBP, EUR.
   - Configure Mobile Money (MTN MoMo / Telecel Cash: `0243825825`) payment instructions.
 
+### Vercel Blob Product Images
+- Product photos uploaded from **Admin > Bead Products** are saved to the connected Vercel Blob store and displayed using their Blob URLs.
+- The Vercel project must have the Blob read-write token available as `BLOB_READ_WRITE_TOKEN`, and the Blob store must allow **public** access so storefront visitors can load the images.
+- JPG, PNG, and WebP images up to 4MB are supported. Keep the token in Vercel environment variables; it is only used by the server.
+- Without `BLOB_READ_WRITE_TOKEN` outside Vercel, uploads use the local `assets/uploads/` directory.
+
+### Persistent PostgreSQL Database
+- The app uses PHP PDO to connect to the Vercel Prisma Postgres database; it does not run the Prisma JavaScript ORM.
+- Add the Vercel database's `POSTGRES_PRISMA_URL` environment variable to the project. `POSTGRES_URL` and `DATABASE_URL` are also recognized. Keep these values private.
+- Vercel's PHP runtime must provide the `pdo_pgsql` extension. Locally, the app continues to use SQLite unless one of those PostgreSQL URL variables is configured.
+- On first connection, the app creates the required products, orders, order-items, and settings tables, and seeds the default catalog/settings if empty.
+- Existing SQLite data is not copied to PostgreSQL automatically. Export/import any existing products, orders, and settings before switching a live store.
+
 ---
 
 ## 🚀 How to Run in Laragon

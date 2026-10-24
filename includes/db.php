@@ -1,41 +1,93 @@
 <?php
 // includes/db.php - Database connection & Auto-Initialization for Ayerko Beads
 
-// Support Vercel Serverless read-only filesystem by writing to /tmp
-$isVercel = getenv('VERCEL') || isset($_ENV['VERCEL']);
-if ($isVercel) {
-    $dbPath = '/tmp/database.sqlite';
-    if (!file_exists($dbPath) && file_exists(__DIR__ . '/../database.sqlite')) {
-        @copy(__DIR__ . '/../database.sqlite', $dbPath);
+function getPostgresDsn($databaseUrl) {
+    $parts = parse_url($databaseUrl);
+    if (
+        $parts === false
+        || !in_array($parts['scheme'] ?? '', ['postgres', 'postgresql'], true)
+        || empty($parts['host'])
+        || empty($parts['path'])
+    ) {
+        throw new RuntimeException('The configured PostgreSQL connection URL is invalid.');
     }
-} else {
-    $dbPath = __DIR__ . '/../database.sqlite';
+
+    parse_str($parts['query'] ?? '', $query);
+    $dsnParts = [
+        'host=' . $parts['host'],
+        'port=' . ($parts['port'] ?? 5432),
+        'dbname=' . rawurldecode(ltrim($parts['path'], '/')),
+    ];
+
+    if (isset($query['sslmode'])) {
+        $dsnParts[] = 'sslmode=' . $query['sslmode'];
+    } elseif (isset($query['ssl']) && $query['ssl'] === 'true') {
+        $dsnParts[] = 'sslmode=require';
+    } elseif (!in_array($parts['host'], ['localhost', '127.0.0.1'], true)) {
+        $dsnParts[] = 'sslmode=require';
+    }
+    if (isset($query['connect_timeout']) && ctype_digit((string)$query['connect_timeout'])) {
+        $dsnParts[] = 'connect_timeout=' . $query['connect_timeout'];
+    }
+
+    $credentials = [
+        'user' => rawurldecode($parts['user'] ?? ''),
+        'password' => rawurldecode($parts['pass'] ?? ''),
+    ];
+
+    return ['pgsql:' . implode(';', $dsnParts), $credentials];
 }
 
+$postgresUrl = getenv('POSTGRES_PRISMA_URL')
+    ?: getenv('POSTGRES_URL')
+    ?: getenv('DATABASE_URL');
+
 try {
-    $pdo = new PDO("sqlite:" . $dbPath);
+    if ($postgresUrl) {
+        if (!extension_loaded('pdo_pgsql')) {
+            throw new RuntimeException('The PHP pdo_pgsql extension is required to connect to the configured PostgreSQL database.');
+        }
+
+        [$dsn, $credentials] = getPostgresDsn($postgresUrl);
+        $pdo = new PDO($dsn, $credentials['user'], $credentials['password']);
+        $databaseDriver = 'pgsql';
+    } else {
+        $isVercel = getenv('VERCEL') || isset($_ENV['VERCEL']);
+        if ($isVercel) {
+            throw new RuntimeException('No PostgreSQL URL configured. Add POSTGRES_PRISMA_URL (or POSTGRES_URL) to the Vercel project.');
+        }
+
+        $dbPath = __DIR__ . '/../database.sqlite';
+        $pdo = new PDO('sqlite:' . $dbPath);
+        $databaseDriver = 'sqlite';
+    }
+
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    // Initialize tables if they don't exist
+    $idType = $databaseDriver === 'pgsql' ? 'BIGSERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    $foreignKeyType = $databaseDriver === 'pgsql' ? 'BIGINT' : 'INTEGER';
+    $realType = $databaseDriver === 'pgsql' ? 'DOUBLE PRECISION' : 'REAL';
+    $timestampType = $databaseDriver === 'pgsql' ? 'TIMESTAMP' : 'DATETIME';
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id $idType,
             name TEXT NOT NULL,
             slug TEXT UNIQUE,
             category TEXT NOT NULL,
-            price REAL NOT NULL,
+            price $realType NOT NULL,
             description TEXT,
             materials TEXT,
             image TEXT NOT NULL,
             stock INTEGER DEFAULT 10,
             featured INTEGER DEFAULT 1,
             is_custom_order INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-
+            created_at $timestampType DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id $idType,
             order_number TEXT UNIQUE NOT NULL,
             customer_name TEXT NOT NULL,
             customer_email TEXT,
@@ -44,41 +96,47 @@ try {
             city TEXT,
             country TEXT,
             currency TEXT DEFAULT 'GHS',
-            total_amount REAL NOT NULL,
+            total_amount $realType NOT NULL,
             payment_method TEXT DEFAULT 'WhatsApp Order',
             payment_status TEXT DEFAULT 'Pending',
             order_status TEXT DEFAULT 'New',
             courier_name TEXT DEFAULT 'Accra Express Courier',
             tracking_number TEXT,
             notes TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-
+            created_at $timestampType DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS order_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            order_id INTEGER NOT NULL,
-            product_id INTEGER,
+            id $idType,
+            order_id $foreignKeyType NOT NULL,
+            product_id $foreignKeyType,
             product_name TEXT NOT NULL,
-            price REAL NOT NULL,
+            price $realType NOT NULL,
             quantity INTEGER NOT NULL,
-            subtotal REAL NOT NULL,
+            subtotal $realType NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-        );
-
+        )
+    ");
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
-        );
+        )
     ");
 
-    // Add courier_name and tracking_number columns if missing
-    $cols = $pdo->query("PRAGMA table_info(orders)")->fetchAll();
-    $existingCols = array_column($cols, 'name');
-    if (!in_array('courier_name', $existingCols)) {
-        $pdo->exec("ALTER TABLE orders ADD COLUMN courier_name TEXT DEFAULT 'Accra Express Courier'");
-    }
-    if (!in_array('tracking_number', $existingCols)) {
-        $pdo->exec("ALTER TABLE orders ADD COLUMN tracking_number TEXT");
+    if ($databaseDriver === 'pgsql') {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_name TEXT DEFAULT 'Accra Express Courier'");
+        $pdo->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_number TEXT");
+    } else {
+        $cols = $pdo->query("PRAGMA table_info(orders)")->fetchAll();
+        $existingCols = array_column($cols, 'name');
+        if (!in_array('courier_name', $existingCols, true)) {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN courier_name TEXT DEFAULT 'Accra Express Courier'");
+        }
+        if (!in_array('tracking_number', $existingCols, true)) {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN tracking_number TEXT");
+        }
     }
 
     // Default settings for Ayerko Beads (Madina, Accra, Ghana)
@@ -104,7 +162,7 @@ try {
         'bank_info' => "Mobile Money (MoMo) / Bank Transfer:\nNetwork: MTN MoMo / Telecel Cash: 0243825825\nName: Ayerko Beads\nBank: GCB Bank / Ecobank Ghana (Accra Branch)\nLocation: Madina, Accra, Ghana"
     ];
 
-    $insStmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (:k, :v)");
+    $insStmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (:k, :v) ON CONFLICT (key) DO NOTHING");
     foreach ($defaultSettings as $k => $v) {
         $insStmt->execute([':k' => $k, ':v' => $v]);
     }
@@ -178,6 +236,7 @@ try {
         $ins = $pdo->prepare("
             INSERT INTO products (name, slug, category, price, description, materials, image, stock, featured, is_custom_order)
             VALUES (:name, :slug, :category, :price, :description, :materials, :image, :stock, :featured, :is_custom_order)
+            ON CONFLICT (slug) DO NOTHING
         ");
 
         foreach ($sampleProducts as $p) {
@@ -196,6 +255,7 @@ try {
         }
     }
 
-} catch (PDOException $e) {
-    die("Database Connection Error: " . $e->getMessage());
+} catch (PDOException | RuntimeException $e) {
+    error_log('Database initialization failed: ' . $e->getMessage());
+    die('Database connection error. Check the PostgreSQL environment variables and PHP PDO drivers.');
 }

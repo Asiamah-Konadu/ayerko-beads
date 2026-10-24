@@ -42,7 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (:key, :value)");
+        $stmt = $pdo->prepare("
+            INSERT INTO settings (key, value) VALUES (:key, :value)
+            ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+        ");
         foreach ($settingsToUpdate as $k => $v) {
             $stmt->execute([':key' => $k, ':value' => $v]);
         }
