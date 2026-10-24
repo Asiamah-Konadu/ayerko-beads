@@ -61,7 +61,7 @@ A luxury e-commerce platform and administrative atelier console for **Ayerko Bea
 
 ### Persistent PostgreSQL Database
 - The app uses PHP PDO to connect to the Vercel Prisma Postgres database; it does not run the Prisma JavaScript ORM.
-- Configure one of `DATABASE_POSTGRES_URL`, `DATABASE_PRISMA_DATABADE_URL`, or `DATABASE_URL` in the project. Keep these values private.
+- Configure one of `DATABASE_POSTGRES_URL`, `DATABASE_PRISMA_DATABADE_URL`, or `DATABASE_URL` in the project. `DATABASE_PRISMA_DATABASE_URL` is also accepted for compatibility. Keep these values private.
 - Vercel's PHP runtime must provide the `pdo_pgsql` extension. Locally, the app continues to use SQLite unless one of those PostgreSQL URL variables is configured.
 - On first connection, the app creates the required products, orders, order-items, and settings tables, and seeds the default catalog/settings if empty.
 - Existing SQLite data is not copied to PostgreSQL automatically. Export/import any existing products, orders, and settings before switching a live store.
