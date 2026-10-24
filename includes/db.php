@@ -54,7 +54,7 @@ try {
     } else {
         $isVercel = getenv('VERCEL') || isset($_ENV['VERCEL']);
         if ($isVercel) {
-            throw new RuntimeException('No PostgreSQL URL configured. Add DATABASE_POSTGRES_URL, DATABASE_PRISMA_DATABADE_URL, or DATABASE_URL to the Vercel project.');
+            throw new RuntimeException('No PostgreSQL URL configured. Add DATABASE_POSTGRES_URL, DATABASE_PRISMA_DATABASE_URL, or DATABASE_URL to the Vercel project.');
         }
 
         $dbPath = __DIR__ . '/../database.sqlite';
