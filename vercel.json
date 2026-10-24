@@ -6,7 +6,7 @@
       "use": "@vercel/node",
       "config": {
         "maxDuration": 10,
-        "includeFiles": "{views/**,assets/**}"
+        "includeFiles": "{views/**,assets/**,node_modules/.prisma/client/**}"
       }
     }
   ],
