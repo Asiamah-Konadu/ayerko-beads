@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+<section class="hero-section"><div class="container hero-grid">
+    <div class="hero-content">
+        <div class="hero-tagline"><span>👑</span><span>Madina, Accra • Authentic Ghanaian Heritage</span></div>
+        <h1 class="hero-title">Sacred Adornments by <span class="gold-text">Ayerko Beads</span></h1>
+        <p class="hero-description">Handcrafted in Madina, Accra. Authentic Ghanaian Krobo powder-glass collars, vibrant layered waist beads, and royal bridal corals sculpted for traditional weddings and elegant royalty.</p>
+        <div class="hero-actions"><a href="#collections" class="btn btn-gold">📿 Explore Collections</a><a href="https://wa.me/<%= cleanPhone %>" class="btn btn-whatsapp">💬 WhatsApp: <%= settings.contact_phone %></a></div>
+        <div class="hero-stats"><div class="stat-item"><span class="stat-number">100%</span><span class="stat-label">Handcrafted in Ghana</span></div><div class="stat-item"><span class="stat-number">GHS</span><span class="stat-label">MoMo & Cash on Delivery</span></div><div class="stat-item"><span class="stat-number">Accra</span><span class="stat-label">Madina Atelier Dispatch</span></div></div>
+    </div>
+    <div class="hero-visual"><div class="hero-img-wrap"><img src="/assets/images/hero_african_beads.jpg" alt="Ayerko Beads Masterpiece"><div class="hero-floating-badge">Ayerko Beads Atelier • Madina, Accra</div></div></div>
+</div></section>
+<section style="padding:25px 0"><div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap">
+    <div><strong>Live Order Tracker</strong><p>Track your piece from handcrafting to dispatch.</p></div>
+    <form method="GET" action="/track.php" style="display:flex;gap:10px"><input name="order" class="form-control" placeholder="Order number or phone" required><button class="btn btn-gold">📦 Track Now</button></form>
+</div></section>
+<section class="filter-section" id="collections"><div class="container">
+    <header style="text-align:center"><div class="hero-tagline">Ayerko Beads Masterpieces</div><h2>Handcrafted Beadwork Collections</h2></header>
+    <div class="category-nav">
+        <% const categoryLabels = { all: 'All Creations', 'Krobo Artisan Statement': 'Ghanaian Krobo Glass', 'Luxury Waist Beads': 'Luxury Waist Beads', 'Royal Wedding Coral': 'Bridal & Royal Coral', 'Royal Crowns & Headpieces': 'Crowns & Regalia' }; %>
+        <% for (const [key, label] of Object.entries(categoryLabels)) { %><button class="category-pill <%= key === 'all' ? 'active' : '' %>" data-category="<%= key %>"><%= label %></button><% } %>
+    </div>
+    <div class="catalog-controls"><div class="search-input-wrap"><span>🔍</span><input id="catalogSearch" class="search-input" placeholder="Search Krobo glass, bridal coral, waist beads..."></div><div>Showing <strong><%= products.length %></strong> handcrafted creations</div></div>
+    <div class="products-grid" id="productsGrid">
+        <% for (const product of products) {
+            const data = { id: String(product.id), name: product.name, priceUSD: Number(product.price), category: product.category, image: getImageUrl(product.image), description: product.description || '', materials: product.materials || '', stock: Number(product.stock || 0) };
+        %>
+        <article class="product-card" data-category="<%= product.category %>" data-title="<%= product.name %>" data-materials="<%= product.materials || '' %>" data-product="<%= JSON.stringify(data) %>">
+            <div class="card-media" onclick="openQuickView(JSON.parse(this.closest('.product-card').dataset.product))" style="cursor:pointer">
+                <img src="<%= getImageUrl(product.image) %>" alt="<%= product.name %>" loading="lazy"><span class="card-tag"><%= product.category %></span>
+                <% if ((product.stock || 0) <= 5) { %><span class="card-stock-tag">Only <%= product.stock %> Left</span><% } %>
+            </div>
+            <div class="card-body"><div class="card-category"><%= product.category %></div><h3 class="card-title"><a href="/product.php?id=<%= product.id %>"><%= product.name %></a></h3>
+                <div class="card-materials"><span>Materials:</span> <%= product.materials || '' %></div>
+                <div class="card-footer"><div class="card-price-row"><span class="card-price"><%= formatPrice(product.price, currency, settings) %></span><span class="card-currency-label"><%= currency %></span></div>
+                    <div class="card-btn-group"><button class="btn-card-add" onclick="Cart.add(JSON.parse(this.closest('.product-card').dataset.product))">📿 Add to Box</button><a href="<%= productWhatsAppUrl(product, currency, settings) %>" target="_blank" rel="noreferrer" class="btn-card-wa">💬</a></div>
+                </div>
+            </div>
+        </article>
+        <% } %>
+    </div>
+    <div id="catalogEmptyMsg" style="display:none;text-align:center;padding:40px">No creations matched your search.</div>
+</div></section>
+<section class="heritage-section"><div class="container heritage-grid"><div class="heritage-visual"><img src="/assets/images/krobo_statement.jpg" alt="Krobo craftsmanship"></div><div class="heritage-content" id="atelier">
+    <div class="hero-tagline">Madina, Accra Atelier</div><h2>The Art of Ayerko Beads</h2><p class="heritage-lead">Authentic Ghanaian Krobo glass beadwork and royal wedding corals that speak of African elegance, ancestry, and royalty.</p>
+    <p>Founded in Ghana, Ayerko Beads merges traditional Krobo powdered glass beadmaking with royal coral regalia and delicate, hand-strung crystal waist beads. Every piece is assembled by our artisans in Madina, Accra.</p>
+    <a href="https://wa.me/<%= cleanPhone %>" class="btn btn-outline">👑 Message Ayerko on WhatsApp</a>
+</div></div></section>
+<section class="bespoke-banner" id="bespoke"><div class="container bespoke-content"><h2>Custom Waist Sizing & Traditional Wedding Bookings</h2><p>Every set can be custom-fitted to your exact dimensions.</p><a href="https://wa.me/<%= cleanPhone %>" class="btn btn-whatsapp">💬 WhatsApp Sizing</a></div></section>
+<%- include('partials/footer') %>

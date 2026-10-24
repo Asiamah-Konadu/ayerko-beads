@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= metaDescription %>">
+    <meta property="og:title" content="<%= settings.store_name %> • Madina, Accra">
+    <meta property="og:description" content="<%= settings.store_tagline %>">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/assets/images/ayerko_beads_logo.jpg">
+    <meta name="theme-color" content="#0d0b09">
+    <link rel="icon" type="image/jpeg" href="/assets/images/ayerko_beads_logo.jpg">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script>
+        window.STORE_CONFIG = {
+            currency: <%- jsonForScript(currency) %>,
+            rates: <%- jsonForScript(rates) %>,
+            whatsapp: <%- jsonForScript(settings.whatsapp_number) %>,
+            whatsappClean: <%- jsonForScript(cleanPhone) %>
+        };
+    </script>
+</head>
+<body>
+<div class="top-bar">
+    <div class="container top-bar-inner">
+        <div class="announcement-badge">
+            <span class="announcement-dot"></span>
+            <span>📍 Atelier: <strong><%= settings.contact_location %></strong> • Call/WhatsApp: <strong><%= settings.contact_phone %></strong> • @ayerkobeads</span>
+        </div>
+        <div class="top-bar-actions">
+            <a href="/track.php" style="font-size: .8rem; color: var(--gold-light);">📦 Track Order</a>
+            <div class="currency-dropdown">
+                <label for="currencySelect">Currency:</label>
+                <select id="currencySelect" class="currency-select" onchange="changeCurrency(this.value)">
+                    <% for (const [code, name] of [['GHS','GHS (GH₵) - Ghana'],['USD','USD ($) - International'],['NGN','NGN (₦) - Nigeria'],['GBP','GBP (£) - UK'],['EUR','EUR (€) - Europe']]) { %>
+                    <option value="<%= code %>" <%= currency === code ? 'selected' : '' %>><%= name %></option>
+                    <% } %>
+                </select>
+            </div>
+            <a href="/admin/login.php" class="admin-link-btn">👑 Artisan Login</a>
+        </div>
+    </div>
+</div>
+<nav class="navbar" id="mainNavbar">
+    <div class="container nav-inner">
+        <a href="/index.php" class="brand-logo">
+            <div class="brand-mark"><img src="/assets/images/ayerko_beads_logo.jpg" alt="Ayerko Beads Logo"></div>
+            <div class="brand-title-wrap"><span class="brand-name">AYERKO BEADS</span><span class="brand-sub">MADINA, ACCRA • GHANA</span></div>
+        </a>
+        <div class="nav-right-actions">
+            <a href="/track.php" class="btn btn-outline btn-sm">📦 Track</a>
+            <button class="nav-cart-btn" onclick="Cart.openDrawer()" aria-label="Open Royal Cart">📿 Box <span class="cart-count-badge" style="display:none">0</span></button>
+            <a href="https://wa.me/<%= cleanPhone %>" target="_blank" rel="noreferrer" class="btn btn-whatsapp btn-sm">💬 <%= settings.contact_phone %></a>
+        </div>
+        <button class="nav-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primaryNavigation">
+            <span class="menu-beads"></span><span class="menu-beads"></span><span class="menu-beads"></span>
+        </button>
+        <ul class="nav-links" id="primaryNavigation">
+            <li><a href="/index.php" class="nav-link">Creations</a></li>
+            <li><a href="/index.php#collections" class="nav-link">Collections</a></li>
+            <li><a href="/track.php" class="nav-link">📦 Track Order</a></li>
+            <li><a href="/index.php#atelier" class="nav-link">Madina Atelier</a></li>
+        </ul>
+    </div>
+</nav>

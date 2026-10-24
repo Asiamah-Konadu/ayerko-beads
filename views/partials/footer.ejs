@@ -1,0 +1,65 @@
+<div class="cart-drawer-overlay" id="cartOverlay" onclick="Cart.closeDrawer()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header"><h3>📿 Your Royal Box</h3><button class="cart-close-btn" onclick="Cart.closeDrawer()">✕</button></div>
+    <div class="cart-items-list" id="cartItemsList"></div>
+    <div class="cart-footer">
+        <div class="cart-subtotal-row"><span>Estimated Total:</span><span id="cartSubtotalVal">GH₵ 0.00</span></div>
+        <p style="font-size:.76rem;color:var(--text-muted)">Dispatched from Madina, Accra.</p>
+        <button id="cartWaCheckoutBtn" class="btn btn-whatsapp" onclick="openCheckout('WhatsApp / MoMo Order')">💬 Complete Order on WhatsApp</button>
+        <button id="cartCheckoutBtn" class="btn btn-gold" onclick="openCheckout('MoMo / Bank Transfer')">✨ Secure Checkout & Order Number</button>
+    </div>
+</div>
+<div class="modal-overlay" id="quickViewOverlay" onclick="if(event.target===this)closeQuickView()">
+    <div class="modal-card" id="quickViewModal">
+        <button class="modal-close-btn" onclick="closeQuickView()">✕</button>
+        <img id="qvImage" src="" alt="" style="width:100%;max-height:360px;object-fit:cover">
+        <span id="qvCategory"></span><h2 id="qvTitle"></h2><div id="qvPrice"></div>
+        <p id="qvDesc"></p><p id="qvMaterials"></p><span id="qvStock"></span>
+        <button id="qvAddBtn" class="btn btn-gold">📿 Add to Royal Box</button>
+        <a id="qvWaBtn" href="#" target="_blank" rel="noreferrer" class="btn btn-whatsapp">💬 WhatsApp</a>
+    </div>
+</div>
+<div class="modal-overlay" id="checkoutOverlay" onclick="if(event.target===this)closeCheckout()">
+    <div class="modal-card" style="max-width:620px">
+        <button class="modal-close-btn" onclick="closeCheckout()">✕</button>
+        <h2>Ayerko Beads Checkout</h2><p>Madina, Accra Atelier • We deliver across Ghana and worldwide.</p>
+        <div><div id="checkoutSummaryList"></div><strong id="checkoutTotalVal"></strong></div>
+        <form id="checkoutForm" onsubmit="submitOrder(event)">
+            <input type="hidden" name="payment_method" id="checkoutMethod" value="WhatsApp / MoMo Order">
+            <label class="form-label">Your Full Name *<input name="customer_name" class="form-control" required></label>
+            <label class="form-label">Mobile Number *<input type="tel" name="customer_phone" class="form-control" required></label>
+            <label class="form-label">Email<input type="email" name="customer_email" class="form-control"></label>
+            <label class="form-label">Delivery Address *<input name="shipping_address" class="form-control" required></label>
+            <label class="form-label">City *<input name="city" class="form-control" required></label>
+            <label class="form-label">Country<input name="country" class="form-control" value="Ghana" required></label>
+            <label class="form-label">Sizing notes<textarea name="notes" class="form-control"></textarea></label>
+            <button type="submit" class="btn btn-gold">Confirm Royal Order</button>
+        </form>
+    </div>
+</div>
+<div class="modal-overlay" id="orderSuccessModal">
+    <div class="modal-card">
+        <h2>Order Registered</h2>
+        <p>Reference: <strong id="successOrderNo"></strong></p>
+        <p>Client: <span id="successClient"></span></p>
+        <p>Total: <span id="successTotal"></span></p>
+        <a id="successTrackBtn" href="/track.php" class="btn btn-gold">📦 Track Order</a>
+        <a id="successWaBtn" href="#" target="_blank" rel="noreferrer" class="btn btn-whatsapp">💬 WhatsApp</a>
+        <button class="btn btn-outline" onclick="closeOrderSuccess()">Continue Exploring</button>
+    </div>
+</div>
+<a href="https://wa.me/<%= cleanPhone %>" target="_blank" rel="noreferrer" class="floating-whatsapp" aria-label="Contact Ayerko Beads">💬</a>
+<footer class="site-footer" id="atelier">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand"><h3>AYERKO BEADS</h3><p><%= settings.store_tagline %>. Madina, Accra, Ghana.</p></div>
+            <div class="footer-col"><h4>Collections</h4><a href="/index.php#collections">All creations</a><br><a href="/index.php#bespoke">Custom sizing</a></div>
+            <div class="footer-col"><h4>Customer Service</h4><a href="/track.php">Track your order</a><br><a href="/admin/login.php">Artisan portal</a></div>
+            <div class="footer-col"><h4>Madina Atelier</h4><p><%= settings.contact_location %><br><%= settings.contact_phone %></p></div>
+        </div>
+        <div class="footer-bottom">© <%= new Date().getFullYear() %> Ayerko Beads. All rights reserved.</div>
+    </div>
+</footer>
+<script src="/assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Artisan Login • Ayerko Beads Portal</title>
+    <link rel="stylesheet" href="/assets/css/admin.css"><link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="login-screen-wrap">
+<main class="login-card">
+    <div style="text-align:center"><img src="/assets/images/ayerko_beads_logo.jpg" alt="Ayerko Beads" style="width:58px;height:58px;border-radius:50%">
+        <h1>AYERKO BEADS</h1><p>Madina, Accra • Atelier Console</p>
+    </div>
+    <% if (error) { %><div class="adm-alert adm-alert-danger"><%= error %></div><% } %>
+    <form method="POST" action="/admin/login.php">
+        <label class="adm-label" for="admPass">Master Access Password</label>
+        <input type="password" id="admPass" name="password" class="adm-input" required autofocus>
+        <button type="submit" class="btn-adm btn-adm-gold" style="width:100%;margin-top:16px">Unlock Atelier Console</button>
+    </form>
+    <p style="text-align:center;margin-top:20px"><a href="/index.php">← Return to Storefront</a></p>
+</main>
+</body>
+</html>

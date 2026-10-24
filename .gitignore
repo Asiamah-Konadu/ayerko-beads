@@ -1,6 +1,10 @@
 # SQLite Database
 database.sqlite
 database.sqlite-journal
+node_modules/
+.env
+.env.*
+!.env.example
 
 # System & Editor Files
 .DS_Store

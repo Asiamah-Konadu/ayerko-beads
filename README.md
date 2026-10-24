@@ -60,32 +60,22 @@ A luxury e-commerce platform and administrative atelier console for **Ayerko Bea
 - Without `BLOB_READ_WRITE_TOKEN` outside Vercel, uploads use the local `assets/uploads/` directory.
 
 ### Persistent PostgreSQL Database
-- The app uses PHP PDO to connect to the Vercel Prisma Postgres database; it does not run the Prisma JavaScript ORM.
-- Configure one of `DATABASE_POSTGRES_URL`, `DATABASE_PRISMA_DATABADE_URL`, or `DATABASE_URL` in the project. `DATABASE_PRISMA_DATABASE_URL` is also accepted for compatibility. Keep these values private.
-- Vercel's PHP runtime must provide the `pdo_pgsql` extension. Locally, the app continues to use SQLite unless one of those PostgreSQL URL variables is configured.
-- On first connection, the app creates the required products, orders, order-items, and settings tables, and seeds the default catalog/settings if empty.
-- Existing SQLite data is not copied to PostgreSQL automatically. Export/import any existing products, orders, and settings before switching a live store.
+- The app is a Node.js/Express application and uses the Prisma ORM with PostgreSQL. PHP and the PHP PDO drivers are no longer used.
+- Configure one of `DATABASE_POSTGRES_URL`, `DATABASE_PRISMA_DATABASE_URL`, or `DATABASE_URL`. Keep these values private.
+- Set `SESSION_SECRET` to a long random value and `BLOB_READ_WRITE_TOKEN` for product image uploads. The first admin password is `ADMIN_PASSWORD` when running the seed (defaults to `admin123` if omitted); change it immediately in Store Settings.
+- Install dependencies with `npm install`, synchronize the Prisma schema with `npm run db:push`, and initialize default settings/catalog with `npm run db:seed`. Back up existing data before schema changes.
+- Existing PostgreSQL data is mapped to the Prisma models. Existing SQLite data is not copied automatically.
+
+### Run locally
+- Install Node.js 20 or newer, then set `DATABASE_URL` (or one of the supported aliases) and `SESSION_SECRET`.
+- Copy `.env.example` to `.env` and fill in its values. Run `npm install`, `npm run db:push`, `npm run db:seed`, then `npm start`.
+- Open `http://localhost:3000`.
 
 ---
-
-## 🚀 How to Run in Laragon
-
-1. **Option A: Laragon Apache**
-   - Open Laragon and click **"Start All"**.
-   - Navigate to `http://localhost/Beadssite` or `http://beadssite.test`.
-   - Order Tracker: `http://localhost/Beadssite/track.php`
-   - Admin Login: `http://localhost/Beadssite/admin/login.php`
-
-2. **Option B: PHP Built-in Server**
-   - In terminal, navigate to `c:\laragon\www\Beadssite` and run:
-     ```powershell
-     & "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" -S 127.0.0.1:8000
-     ```
-   - Open `http://127.0.0.1:8000`.
 
 ---
 
 ## 🔐 Default Admin Credentials
-- **URL**: `http://localhost/Beadssite/admin/login.php`
-- **Default Password**: `admin123`
-*(Can be customized under **Admin > Store & Rates**).*
+- **URL**: `http://localhost:3000/admin/login.php`
+- Set `ADMIN_PASSWORD` before `npm run db:seed`; otherwise the initial password is `admin123`.
+- Change the password under **Admin > Store Settings** after signing in.

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= page === 'product-form' ? (product ? 'Edit Bead Creation' : 'Add Bead Creation') : ({dashboard:'Dashboard',orders:'Orders',products:'Bead Catalog',settings:'Store Settings'})[page] %> • Ayerko Beads</title>
+    <link rel="stylesheet" href="/assets/css/admin.css"><link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="/admin/" class="brand-name">AYERKO BEADS</a>
+        <p>Madina Atelier • <%= adminUser %></p>
+        <nav style="display:grid;gap:12px;margin-top:24px">
+            <a href="/admin/">Dashboard</a><a href="/admin/orders.php">Client Orders</a><a href="/admin/products.php">Bead Catalog</a><a href="/admin/settings.php">Store Settings</a><a href="/index.php" target="_blank">View Storefront</a><a href="/admin/logout.php">Log Out</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><h1 class="topbar-title"><%= page === 'product-form' ? (product ? 'Edit Bead Creation' : 'Upload New Bead Creation') : ({dashboard:'Ayerko Beads Atelier Dashboard',orders:'Client Orders & Courier Tracking',products:'Bead Catalog Management',settings:'Ayerko Beads Atelier Configuration'})[page] %></h1><p>Madina, Accra Atelier</p></div></header>
+        <div class="admin-body">
+        <% if (message) { %><div class="adm-alert adm-alert-success"><%= message %></div><% } %>
+        <% if (error) { %><div class="adm-alert adm-alert-danger"><%= error %></div><% } %>
+
+        <% if (page === 'dashboard') { %>
+            <div class="stats-grid">
+                <div class="stat-box"><span class="stat-box-title">Total Orders Value</span><span class="stat-box-val"><%= formatPrice(stats.revenue, 'GHS', settings) %></span></div>
+                <div class="stat-box"><span class="stat-box-title">Total Client Orders</span><span class="stat-box-val"><%= stats.totalOrders %></span></div>
+                <div class="stat-box"><span class="stat-box-title">Active Bead Pieces</span><span class="stat-box-val"><%= stats.totalProducts %></span></div>
+                <div class="stat-box"><span class="stat-box-title">Low Stock Alert</span><span class="stat-box-val"><%= stats.lowStock %></span></div>
+            </div>
+            <section class="admin-card"><h2>Recent Orders</h2><p><a href="/admin/orders.php">Manage & Dispatch Orders →</a></p>
+                <% if (!recentOrders.length) { %><p>No client orders logged yet.</p><% } else { %><div class="table-responsive"><table class="admin-table"><thead><tr><th>Order</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
+                <% for (const order of recentOrders) { %><tr><td><a href="/track.php?order=<%= encodeURIComponent(order.orderNumber) %>"><%= order.orderNumber %></a></td><td><%= order.customerName %><br><%= order.customerPhone %><br><a target="_blank" rel="noreferrer" href="https://wa.me/<%= whatsappPhone(order.customerPhone) %>?text=<%= encodeURIComponent(`Hello ${order.customerName}, this is Ayerko Beads regarding your order ${order.orderNumber}.`) %>">Chat Client</a></td><td><%= order.currency %> <%= Number(order.totalAmount).toFixed(2) %></td><td><%= order.orderStatus %></td><td><%= order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '' %></td></tr><% } %>
+                </tbody></table></div><% } %>
+            </section>
+        <% } else if (page === 'orders') { %>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+                <% for (const [key,label] of [['all','All Orders'],['New','New / Booked'],['Processing','In Atelier'],['Shipped','Dispatched'],['Completed','Delivered'],['Cancelled','Cancelled']]) { %><a class="btn-adm btn-adm-sm <%= status === key ? 'btn-adm-gold' : 'btn-adm-outline' %>" href="/admin/orders.php?status=<%= key %>"><%= label %></a><% } %>
+            </div>
+            <section class="admin-card"><div class="table-responsive"><table class="admin-table"><thead><tr><th>Order</th><th>Client</th><th>Address</th><th>Items & Sizing</th><th>Total</th><th>Status & Courier</th></tr></thead><tbody>
+            <% if (!orders.length) { %><tr><td colspan="6">No client orders found for this status.</td></tr><% } %>
+            <% for (const order of orders) { %><tr>
+                <td><strong><%= order.orderNumber %></strong><br><small><%= order.createdAt ? new Date(order.createdAt).toLocaleString() : '' %></small><br><a href="/track.php?order=<%= encodeURIComponent(order.orderNumber) %>" target="_blank">View Tracker</a></td>
+                <td><%= order.customerName %><br><%= order.customerPhone %><% if (order.customerEmail) { %><br><%= order.customerEmail %><% } %><br><a target="_blank" rel="noreferrer" href="https://wa.me/<%= whatsappPhone(order.customerPhone) %>?text=<%= encodeURIComponent(`Hello ${order.customerName}, your Ayerko Beads order ${order.orderNumber} is currently ${order.orderStatus}.`) %>">Chat Client</a></td>
+                <td><%= order.shippingAddress %><br><%= order.city %>, <%= order.country %></td>
+                <td><ul><% for (const item of order.items) { %><li><%= item.productName %> × <%= item.quantity %></li><% } %></ul><% if (order.notes) { %><small>Sizing: <%= order.notes %></small><% } %></td>
+                <td><%= order.currency %> <%= Number(order.totalAmount).toFixed(2) %><br><small><%= order.paymentMethod %></small></td>
+                <td><form method="POST" action="/admin/orders.php" style="display:grid;gap:6px;min-width:175px">
+                    <input type="hidden" name="order_id" value="<%= order.id %>"><input type="hidden" name="filter_status" value="<%= status %>">
+                    <select name="order_status" class="adm-select"><% for (const value of ['New','Processing','Shipped','Completed','Cancelled']) { %><option value="<%= value %>" <%= order.orderStatus === value ? 'selected' : '' %>><%= value %></option><% } %></select>
+                    <input name="courier_name" class="adm-input" value="<%= order.courierName || '' %>" placeholder="Courier">
+                    <input name="tracking_number" class="adm-input" value="<%= order.trackingNumber || '' %>" placeholder="Waybill / Rider Code">
+                    <button class="btn-adm btn-adm-gold btn-adm-sm">Update Tracker</button>
+                </form></td>
+            </tr><% } %></tbody></table></div></section>
+        <% } else if (page === 'products') { %>
+            <p><a class="btn-adm btn-adm-gold" href="/admin/product_add.php">+ Upload New Bead Creation</a></p>
+            <section class="admin-card"><div class="table-responsive"><table class="admin-table"><thead><tr><th>Photo</th><th>Name</th><th>Category</th><th>Base Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody>
+            <% if (!products.length) { %><tr><td colspan="6">No beads in catalog yet.</td></tr><% } %>
+            <% for (const item of products) { %><tr><td><img class="prod-thumb" src="<%= getImageUrl(item.image) %>" alt="<%= item.name %>"></td><td><%= item.name %><br><small><%= item.materials || '' %></small></td><td><%= item.category %></td><td>$<%= Number(item.price).toFixed(2) %></td><td><%= item.stock %></td><td><a class="btn-adm btn-adm-outline btn-adm-sm" href="/admin/product_edit.php?id=<%= item.id %>">Edit</a> <a class="btn-adm btn-adm-outline btn-adm-sm" href="/product.php?id=<%= item.id %>" target="_blank">View</a> <a class="btn-adm btn-adm-danger btn-adm-sm" href="/admin/products.php/delete/<%= item.id %>" onclick="return confirm('Delete this creation?')">Delete</a></td></tr><% } %>
+            </tbody></table></div></section>
+        <% } else if (page === 'product-form') { %>
+            <section class="admin-card" style="max-width:900px">
+                <form method="POST" action="<%= product ? `/admin/product_edit.php?id=${product.id}` : '/admin/product_add.php' %>" enctype="multipart/form-data">
+                    <% if (product && product.image) { %><p><img src="<%= getImageUrl(product.image) %>" alt="" style="width:100px;height:100px;object-fit:cover"></p><% } %>
+                    <label class="adm-label">Photo <%= product ? '(optional)' : '*' %><input type="file" name="image" accept="image/jpeg,image/png,image/webp" <%= product ? '' : 'required' %>></label>
+                    <label class="adm-label">Creation Name<input name="name" class="adm-input" value="<%= product?.name || '' %>" required></label>
+                    <label class="adm-label">Category<select name="category" class="adm-select" required><option value="">Choose category</option><% for (const item of categories) { %><option value="<%= item %>" <%= product?.category === item ? 'selected' : '' %>><%= item %></option><% } %></select></label>
+                    <label class="adm-label">Price (USD)<input type="number" name="price" class="adm-input" step="0.01" min="0.01" value="<%= product?.price || '' %>" required></label>
+                    <label class="adm-label">Stock<input type="number" name="stock" class="adm-input" min="0" value="<%= product?.stock ?? 5 %>" required></label>
+                    <label class="adm-label"><input type="checkbox" name="featured" value="1" <%= product?.featured ? 'checked' : '' %>> Featured</label>
+                    <label class="adm-label">Materials<input name="materials" class="adm-input" value="<%= product?.materials || '' %>"></label>
+                    <label class="adm-label">Description<textarea name="description" class="adm-textarea" rows="5"><%= product?.description || '' %></textarea></label>
+                    <button class="btn-adm btn-adm-gold"><%= product ? 'Save Changes' : 'Publish Creation' %></button>
+                </form>
+            </section>
+        <% } else if (page === 'settings') { %>
+            <section class="admin-card" style="max-width:860px"><form method="POST" action="/admin/settings.php">
+                <% for (const [key,label] of [['store_name','Brand Name'],['store_tagline','Tagline'],['contact_location','Workshop Location'],['contact_phone','Contact Phone'],['whatsapp_number','WhatsApp Number'],['social_handle','Social Handle'],['contact_email','Contact Email']]) { %>
+                <label class="adm-label"><%= label %><input name="<%= key %>" class="adm-input" value="<%= settings[key] || '' %>"></label><% } %>
+                <h2>Exchange rates (USD base)</h2>
+                <% for (const key of ['GHS','NGN','GBP','EUR']) { %><label class="adm-label"><%= key %><input type="number" min="0.001" step="any" name="rate_<%= key %>" class="adm-input" value="<%= settings[`rate_${key}`] %>" required></label><% } %>
+                <label class="adm-label">Payment Instructions<textarea name="bank_info" class="adm-textarea" rows="4"><%= settings.bank_info || '' %></textarea></label>
+                <label class="adm-label">New Admin Password (blank to keep current)<input type="password" name="new_password" class="adm-input"></label>
+                <button class="btn-adm btn-adm-gold">💾 Save Settings</button>
+            </form></section>
+        <% } %>
+        </div>
+    </main>
+</div>
+</body>
+</html>

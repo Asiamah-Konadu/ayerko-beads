@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+<main class="container" style="padding:40px 0 80px">
+    <div style="margin-bottom:24px"><a href="/index.php">Ayerko Creations</a> / <%= product.category %> / <%= product.name %></div>
+    <% const data = { id: String(product.id), name: product.name, priceUSD: Number(product.price), category: product.category, image: getImageUrl(product.image), description: product.description || '', materials: product.materials || '', stock: Number(product.stock || 0) }; %>
+    <div class="product-detail-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px">
+        <img src="<%= getImageUrl(product.image) %>" alt="<%= product.name %>" style="width:100%;max-height:560px;object-fit:cover">
+        <div><div class="hero-tagline"><%= product.category %> • Madina Atelier</div><h1><%= product.name %></h1>
+            <div class="card-price"><%= formatPrice(product.price, currency, settings) %></div>
+            <p><%= (product.stock || 0) > 0 ? `✓ In Stock (${product.stock} available)` : '⚠ Custom Made-to-Order' %></p>
+            <h3>Description & Cultural Significance</h3><p><%= product.description || '' %></p>
+            <h4>Authentic Materials</h4><p><%= product.materials || '' %></p>
+            <button class="btn btn-gold" data-product="<%= JSON.stringify(data) %>" onclick="Cart.add(JSON.parse(this.dataset.product))">📿 Add to Royal Box</button>
+            <a href="<%= productWhatsAppUrl(product, currency, settings) %>" class="btn btn-whatsapp" target="_blank" rel="noreferrer">💬 WhatsApp Order</a>
+        </div>
+    </div>
+    <% if (related.length) { %><h2 style="text-align:center;margin-top:55px">More Creations by Ayerko Beads</h2><div class="products-grid">
+        <% for (const item of related) { %><article class="product-card"><a href="/product.php?id=<%= item.id %>" class="card-media"><img src="<%= getImageUrl(item.image) %>" alt="<%= item.name %>"></a><div class="card-body"><h3><a href="/product.php?id=<%= item.id %>"><%= item.name %></a></h3><span class="card-price"><%= formatPrice(item.price, currency, settings) %></span></div></article><% } %>
+    </div><% } %>
+</main>
+<%- include('partials/footer') %>

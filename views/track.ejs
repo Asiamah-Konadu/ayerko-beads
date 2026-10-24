@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+<main class="container" style="padding:50px 0 90px;max-width:900px">
+    <header style="text-align:center;margin-bottom:32px"><span style="font-size:2.4rem">📦</span><h1>Track Your Royal Order</h1><p>Enter your order number or mobile number to check its progress.</p></header>
+    <form method="GET" action="/track.php" class="admin-card" style="display:flex;gap:12px;flex-wrap:wrap">
+        <input name="order" value="<%= query %>" class="form-control" placeholder="Order reference or mobile number" required style="flex:1;min-width:250px">
+        <button class="btn btn-gold">🔍 Track Order</button>
+        <% if (error) { %><div class="adm-alert adm-alert-danger" style="width:100%"><%= error %></div><% } %>
+    </form>
+    <% if (order) {
+        const statusOrder = { New: 1, Processing: 2, Shipped: 3, Completed: 4, Cancelled: 0 };
+        const step = statusOrder[order.orderStatus] || 1;
+        const statusLabel = { New: '📝 Order Confirmed', Processing: '📿 Handcrafting in Atelier', Shipped: '🚚 Dispatched with Courier', Completed: '✨ Delivered & Adorned', Cancelled: '❌ Cancelled' }[order.orderStatus] || order.orderStatus;
+    %>
+    <section class="admin-card" style="margin-top:30px">
+        <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap"><div><small>Ayerko Beads Atelier Order Reference</small><h2><%= order.orderNumber %></h2><p>Booked <%= order.createdAt ? new Date(order.createdAt).toLocaleString() : '' %></p></div><div><small>Current Status</small><h3><%= statusLabel %></h3><strong><%= currencySymbol(order.currency) %><%= Number(order.totalAmount).toFixed(2) %></strong></div></div>
+        <div style="display:flex;justify-content:space-around;text-align:center;margin:32px 0">
+            <% for (const [index, label] of ['Order Placed','Handcrafting (Madina)','Courier Dispatch','Delivered'].entries()) { %>
+                <div><div class="stat-number"><%= index + 1 <= step ? '✓' : index + 1 %></div><small><%= label %></small></div>
+            <% } %>
+        </div>
+        <% if (order.courierName || order.trackingNumber) { %><p>Courier: <%= order.courierName || 'Not assigned' %> • Waybill: <%= order.trackingNumber || 'Pending' %></p><% } %>
+        <h3>Ordered Creations</h3><ul><% for (const item of order.items) { %><li><%= item.productName %> × <%= item.quantity %> — <%= currencySymbol(order.currency) %><%= Number(item.subtotal).toFixed(2) %></li><% } %></ul>
+        <a class="btn btn-whatsapp" target="_blank" rel="noreferrer" href="https://wa.me/<%= cleanPhone %>?text=<%= encodeURIComponent(`Hello Ayerko Beads, I am checking on order #${order.orderNumber}`) %>">💬 Contact Ayerko Beads</a>
+    </section>
+    <% } %>
+</main>
+<%- include('partials/footer') %>
