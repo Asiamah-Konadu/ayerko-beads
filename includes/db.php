@@ -38,8 +38,8 @@ function getPostgresDsn($databaseUrl) {
     return ['pgsql:' . implode(';', $dsnParts), $credentials];
 }
 
-$postgresUrl = getenv('POSTGRES_PRISMA_URL')
-    ?: getenv('POSTGRES_URL')
+$postgresUrl = getenv('DATABASE_POSTGRES_URL')
+    ?: getenv('DATABASE_PRISMA_DATABADE_URL')
     ?: getenv('DATABASE_URL');
 
 try {
@@ -54,7 +54,7 @@ try {
     } else {
         $isVercel = getenv('VERCEL') || isset($_ENV['VERCEL']);
         if ($isVercel) {
-            throw new RuntimeException('No PostgreSQL URL configured. Add POSTGRES_PRISMA_URL (or POSTGRES_URL) to the Vercel project.');
+            throw new RuntimeException('No PostgreSQL URL configured. Add DATABASE_POSTGRES_URL, DATABASE_PRISMA_DATABADE_URL, or DATABASE_URL to the Vercel project.');
         }
 
         $dbPath = __DIR__ . '/../database.sqlite';
